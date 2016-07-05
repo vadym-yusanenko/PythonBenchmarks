@@ -7,8 +7,6 @@ Created on Sep 18, 2015
 from sys import getsizeof
 from timeit import Timer
 
-# TODO: note about subdicts in 3+
-
 
 OUTPUT_LEFT_JUSTIFICATION = 25
 
@@ -22,20 +20,23 @@ def inspect_container_size(object_type, size=1000):
     """ Prints amount of memory required to represent specifiied object. """
 
     if object_type == TYPE_LIST:
-        container = [ item for item in xrange(size) ]
+        container = [item for item in xrange(size)]
     elif object_type == TYPE_SET:
-        container = ({ item for item in xrange(size) })
+        container = ({item for item in xrange(size)})
     elif object_type == TYPE_TUPLE:
-        container = tuple( item for item in xrange(size) )
+        container = tuple(item for item in xrange(size))
     else:
         raise Exception('This object is not supported.')
 
     print 'Type: %sSize: %s' % (
-        type(container).__name__.ljust(OUTPUT_LEFT_JUSTIFICATION), getsizeof(container)
+        type(container).__name__.ljust(OUTPUT_LEFT_JUSTIFICATION),
+        getsizeof(container)
     )
 
 
-def run_timing_test(container_type, statement, setup_instruction='pass', number=1000000):
+def run_timing_test(
+    container_type, statement, setup_instruction='pass', number=1000000
+):
     """ Prints properly formatted timing report for specified statement. """
     print 'Type: %sTime: %s' % (
         container_type.ljust(OUTPUT_LEFT_JUSTIFICATION),
@@ -43,8 +44,12 @@ def run_timing_test(container_type, statement, setup_instruction='pass', number=
     )
 
 
-def generate_container_declaration(object_type, size=1000, variable_name='container'):
-    """ Generate container declaration string suitable in use with timeit utility. """
+def generate_container_declaration(
+    object_type, size=1000, variable_name='container'
+):
+    """
+    Generate container declaration string suitable in use with timeit utility.
+    """
 
     if object_type in (
         TYPE_LIST, TYPE_TUPLE, TYPE_SET
@@ -57,8 +62,7 @@ def generate_container_declaration(object_type, size=1000, variable_name='contai
 
 
 def inspect_container_iteration(object_type, size=100):
-    """ Test iteration over container. In case of dict - test value and key iterations. """
-    # We need to perform additional test for dict as it has keys and values as its arrays.
+    """ Test iteration over container. """
     # Adding marker to identify which exact check do we perform at this moment.
     object_type_name = object_type.__name__
     run_timing_test(
@@ -86,7 +90,9 @@ def inspect_container_addition(object_type, statements=10):
     if object_type in (
         TYPE_LIST, TYPE_TUPLE, TYPE_SET
     ):
-        statement = ';'.join( [ statement_template % item for item in xrange(statements) ] )
+        statement = ';'.join(
+            [statement_template % item for item in xrange(statements)]
+        )
     else:
         raise Exception('This object is not supported.')
 
@@ -144,7 +150,8 @@ def container_removal_by_index(object_type, size=10000):
         removal_statement_template = 'del container[%s]'
     elif object_type in (TYPE_SET, TYPE_TUPLE):
         removal_statement_template = (
-            'container=%s(item[1] for item in enumerate(container) if item[0]!=%s)'
+            'container=%s'
+            '(item[1] for item in enumerate(container) if item[0]!=%s)'
             %
             (object_type_name, '%s')
         )
@@ -152,7 +159,10 @@ def container_removal_by_index(object_type, size=10000):
         raise Exception('Unsupported object type')
 
     removal_statement = ';'.join(
-        tuple(removal_statement_template % item_count for item_count in reversed(xrange(size)))
+        tuple(
+            removal_statement_template % item_count
+            for item_count in reversed(xrange(size))
+        )
     )
 
     run_timing_test(
@@ -166,16 +176,18 @@ def container_removal_by_index(object_type, size=10000):
 def container_removal_by_value(object_type, size=10000):
     """
     Test speed of removal element by value.
-    IMPORTANT NOTE: list supportes removal of all similar values or only the first.
+    IMPORTANT NOTE: list supports removal of all similar values or only the
+                    first occurence.
     """
 
     object_type_name = object_type.__name__
 
     if object_type in (TYPE_LIST, TYPE_TUPLE):
         removal_statement_template_all = (
-            'container=%s(item[1] for item in enumerate(container) if item[0]!=%s)' % (
-                object_type_name, '%s'
-            )
+            (
+                'container=%s'
+                '(item[1] for item in enumerate(container) if item[0]!=%s)'
+            ) % (object_type_name, '%s')
         )
         if object_type == TYPE_LIST:
             removal_statement_template_list = 'container.remove(%s)'
@@ -185,7 +197,10 @@ def container_removal_by_value(object_type, size=10000):
         raise Exception('Unsupported object type')
 
     removal_statement_all = ';'.join(
-        tuple(removal_statement_template_all % item_count for item_count in reversed(xrange(size)))
+        tuple(
+            removal_statement_template_all % item_count
+            for item_count in reversed(xrange(size))
+        )
     )
 
     run_timing_test(
